@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EvidenceController as AdminEvidenceController;
@@ -9,6 +10,9 @@ use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\TematikController;
 use App\Http\Controllers\Karyawan\DashboardController as KaryawanDashboardController;
 use App\Http\Controllers\Karyawan\EvidenceController as KaryawanEvidenceController;
+use App\Http\Controllers\TeamLeader\DashboardController as TLDashboardController; // ← TAMBAH
+use App\Http\Controllers\TeamLeader\ProjectController as TLProjectController;
+use App\Http\Controllers\TeamLeader\AssignmentController as TLAssignmentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,4 +44,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 Route::middleware('auth')->prefix('karyawan')->name('karyawan.')->group(function () {
     Route::get('/dashboard', [KaryawanDashboardController::class, 'index'])->name('dashboard');
     Route::resource('/evidence', KaryawanEvidenceController::class)->names('evidence');
+});
+
+Route::middleware('auth')->prefix('teamleader')->name('teamleader.')->group(function () {
+    Route::get('/dashboard', [TLDashboardController::class, 'index'])->name('dashboard'); // ← TAMBAH
+    Route::resource('/project', TLProjectController::class)->names('project');
+    Route::resource('/assignment', TLAssignmentController::class)->names('assignment');
 });

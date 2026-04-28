@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -40,7 +41,7 @@ class AuthController extends Controller
     {
         return match($role) {
             'admin'       => redirect()->route('admin.dashboard'),
-            'team leader' => redirect()->route('admin.dashboard'),
+            'team leader' => redirect()->route('teamleader.dashboard'), // ← DIUBAH
             'karyawan'    => redirect()->route('karyawan.dashboard'),
             default       => redirect()->route('login'),
         };

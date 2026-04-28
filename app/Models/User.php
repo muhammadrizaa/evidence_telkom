@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -21,8 +22,12 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function getAuthIdentifierName()
+    // Tambah relasi project
+    public function projects()
     {
-        return 'username';
+        return $this->hasMany(Project::class, 'team_leader_id');
     }
+
+    // HAPUS method getAuthIdentifierName() yang lama
+    // Biarkan Laravel pakai 'id' secara default
 }
