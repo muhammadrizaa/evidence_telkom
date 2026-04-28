@@ -36,7 +36,7 @@
     <div class="sidebar">
         <div class="logo-container">
             <img src="{{ asset('images/logo-kanan.png') }}" alt="Logo Telkom Akses">
-            <h2>Telkom Akses</h2>
+            <h2>Admin</h2>
         </div>
         
         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="fa-solid fa-tachometer-alt"></i> Dashboard</a>
