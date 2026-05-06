@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\TeamLeader;
-
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\User;
@@ -16,17 +14,16 @@ class ProjectController extends Controller
         $projects = Project::with(['admin', 'waspang'])
             ->where('team_leader_id', Auth::id())
             ->latest()
-            ->get();
-
+            ->paginate(10);
         return view('teamleader.project.index', compact('projects'));
     }
 
     public function create()
     {
-        $admins   = User::where('role', 'admin')->get();
+        // Admin hanya 1, ambil otomatis
+        $admin    = User::where('role', 'admin')->first();
         $waspangs = Waspang::all();
-
-        return view('teamleader.project.create', compact('admins', 'waspangs'));
+        return view('teamleader.project.create', compact('admin', 'waspangs'));
     }
 
     public function store(Request $request)
@@ -35,16 +32,18 @@ class ProjectController extends Controller
             'nama_project' => 'required|string|max:255',
             'lokasi'       => 'required|string',
             'deskripsi'    => 'nullable|string',
-            'admin_id'     => 'required|exists:users,id',
             'waspang_id'   => 'required|exists:waspang,id',
             'status'       => 'required|in:pending,aktif,selesai',
         ]);
+
+        // Admin diambil otomatis, tidak perlu dipilih
+        $admin = User::where('role', 'admin')->first();
 
         Project::create([
             'nama_project'   => $request->nama_project,
             'lokasi'         => $request->lokasi,
             'deskripsi'      => $request->deskripsi,
-            'admin_id'       => $request->admin_id,
+            'admin_id'       => $admin->id,
             'waspang_id'     => $request->waspang_id,
             'status'         => $request->status,
             'team_leader_id' => Auth::id(),
@@ -59,17 +58,15 @@ class ProjectController extends Controller
         $project = Project::with(['admin', 'waspang', 'assignments.user', 'assignments.mapping'])
             ->where('team_leader_id', Auth::id())
             ->findOrFail($id);
-
         return view('teamleader.project.show', compact('project'));
     }
 
     public function edit($id)
     {
         $project  = Project::where('team_leader_id', Auth::id())->findOrFail($id);
-        $admins   = User::where('role', 'admin')->get();
+        $admin    = User::where('role', 'admin')->first();
         $waspangs = Waspang::all();
-
-        return view('teamleader.project.edit', compact('project', 'admins', 'waspangs'));
+        return view('teamleader.project.edit', compact('project', 'admin', 'waspangs'));
     }
 
     public function update(Request $request, $id)
@@ -80,7 +77,6 @@ class ProjectController extends Controller
             'nama_project' => 'required|string|max:255',
             'lokasi'       => 'required|string',
             'deskripsi'    => 'nullable|string',
-            'admin_id'     => 'required|exists:users,id',
             'waspang_id'   => 'required|exists:waspang,id',
             'status'       => 'required|in:pending,aktif,selesai',
         ]);
@@ -89,7 +85,6 @@ class ProjectController extends Controller
             'nama_project' => $request->nama_project,
             'lokasi'       => $request->lokasi,
             'deskripsi'    => $request->deskripsi,
-            'admin_id'     => $request->admin_id,
             'waspang_id'   => $request->waspang_id,
             'status'       => $request->status,
         ]);
@@ -102,7 +97,6 @@ class ProjectController extends Controller
     {
         $project = Project::where('team_leader_id', Auth::id())->findOrFail($id);
         $project->delete();
-
         return redirect()->route('teamleader.project.index')
             ->with('success', 'Project berhasil dihapus!');
     }

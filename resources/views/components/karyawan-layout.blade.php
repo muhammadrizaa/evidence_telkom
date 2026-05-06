@@ -41,7 +41,7 @@
         <a href="{{ route('karyawan.dashboard') }}" class="{{ request()->routeIs('karyawan.dashboard') ? 'active' : '' }}"><i class="fa-solid fa-tachometer-alt"></i> Dashboard</a>
         <a href="{{ route('karyawan.evidence.create') }}" class="{{ request()->routeIs('karyawan.evidence.create') ? 'active' : '' }}"><i class="fa-solid fa-upload"></i> Input Evidence</a>
         <a href="{{ route('karyawan.evidence.index') }}" class="{{ request()->routeIs('karyawan.evidence.index') ? 'active' : '' }}"><i class="fa-solid fa-history"></i> Riwayat Evidence</a>
-        <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}"><i class="fa-solid fa-user-circle"></i> Profil Saya</a>
+        <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}"><i class="fa-solid fa-user-circle"></i> Kelola Profile</a>
         <div class="logout">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

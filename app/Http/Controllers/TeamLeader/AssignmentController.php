@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\TeamLeader;
 
 use App\Http\Controllers\Controller;
@@ -19,8 +18,7 @@ class AssignmentController extends Controller
                 $q->where('team_leader_id', Auth::id());
             })
             ->latest()
-            ->get();
-
+            ->paginate(10);
         return view('teamleader.assignment.index', compact('assignments'));
     }
 
@@ -29,7 +27,6 @@ class AssignmentController extends Controller
         $projects  = Project::where('team_leader_id', Auth::id())->get();
         $karyawans = User::where('role', 'karyawan')->get();
         $mappings  = Mapping::all();
-
         return view('teamleader.assignment.create', compact('projects', 'karyawans', 'mappings'));
     }
 
@@ -42,9 +39,7 @@ class AssignmentController extends Controller
             'tgl_penugasan' => 'required|date',
             'status_tugas'  => 'required|in:aktif,selesai',
         ]);
-
-        Assignment::create($request->all());
-
+        Assignment::create($request->only(['project_id', 'user_id', 'mapping_id', 'tgl_penugasan', 'status_tugas']));
         return redirect()->route('teamleader.assignment.index')
             ->with('success', 'Assignment berhasil dibuat!');
     }
@@ -56,7 +51,6 @@ class AssignmentController extends Controller
                 $q->where('team_leader_id', Auth::id());
             })
             ->findOrFail($id);
-
         return view('teamleader.assignment.show', compact('assignment'));
     }
 
@@ -65,11 +59,9 @@ class AssignmentController extends Controller
         $assignment = Assignment::whereHas('project', function ($q) {
             $q->where('team_leader_id', Auth::id());
         })->findOrFail($id);
-
         $projects  = Project::where('team_leader_id', Auth::id())->get();
         $karyawans = User::where('role', 'karyawan')->get();
         $mappings  = Mapping::all();
-
         return view('teamleader.assignment.edit', compact('assignment', 'projects', 'karyawans', 'mappings'));
     }
 
@@ -87,8 +79,7 @@ class AssignmentController extends Controller
             'status_tugas'  => 'required|in:aktif,selesai',
         ]);
 
-        $assignment->update($request->all());
-
+        $assignment->update($request->only(['project_id', 'user_id', 'mapping_id', 'tgl_penugasan', 'status_tugas']));
         return redirect()->route('teamleader.assignment.index')
             ->with('success', 'Assignment berhasil diupdate!');
     }
@@ -98,9 +89,7 @@ class AssignmentController extends Controller
         $assignment = Assignment::whereHas('project', function ($q) {
             $q->where('team_leader_id', Auth::id());
         })->findOrFail($id);
-
         $assignment->delete();
-
         return redirect()->route('teamleader.assignment.index')
             ->with('success', 'Assignment berhasil dihapus!');
     }

@@ -46,7 +46,7 @@
         <a href="{{ route('admin.po.index') }}" class="{{ request()->routeIs('admin.po.*') ? 'active' : '' }}"><i class="fa-solid fa-money-check-dollar"></i> Kelola Purchase Order</a>
         <a href="{{ route('admin.evidence.index') }}" class="{{ request()->routeIs('admin.evidence.*') ? 'active' : '' }}"><i class="fa-solid fa-folder-open"></i> Kelola Evidence</a>
         <a href="{{ route('admin.laporan.index') }}" class="{{ request()->routeIs('admin.laporan.index') ? 'active' : '' }}"><i class="fa-solid fa-file-invoice"></i> Generate Laporan</a>
-        <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}"><i class="fa-solid fa-user-circle"></i> Profil Saya</a>
+        <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}"><i class="fa-solid fa-user-circle"></i> Kelola Profile</a>
         
         <div class="logout">
             <form method="POST" action="{{ route('logout') }}">
