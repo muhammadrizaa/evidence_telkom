@@ -1,14 +1,13 @@
 <x-karyawan-layout>
-    {{-- CSS Khusus untuk halaman ini --}}
     <style>
         .stats-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 24px; }
         @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
         .stat-card { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); display: flex; align-items: center; }
-        .stat-card .icon { padding: 12px; border-radius: 9999px; margin-right: 16px; }
+        .stat-card .icon { padding: 12px; border-radius: 9999px; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
         .stat-card .icon i { font-size: 1.5rem; color: #fff; width: 28px; height: 28px; text-align: center; line-height: 28px; }
-        .stat-card .info h4 { font-size: 0.875rem; font-weight: 500; color: #6b7280; text-transform: uppercase; }
-        .stat-card .info p { font-size: 1.875rem; font-weight: 700; color: #1f2937; }
+        .stat-card .info h4 { font-size: 0.875rem; font-weight: 500; color: #6b7280; text-transform: uppercase; margin: 0 0 4px; }
+        .stat-card .info p { font-size: 1.875rem; font-weight: 700; color: #1f2937; margin: 0; line-height: 1; }
         .icon-total { background-color: #1f2937; }
         .icon-pending { background-color: #f59e0b; }
         .icon-approved { background-color: #10b981; }
@@ -58,7 +57,6 @@
                 <tbody>
                     @forelse ($recentEvidences as $evidence)
                         <tr>
-                            {{-- PERBAIKAN DI SINI: Menggunakan 'lokasi' bukan 'judul' --}}
                             <td>{{ $evidence->lokasi }}</td>
                             <td>{{ $evidence->created_at->format('d M Y') }}</td>
                             <td style="text-align: center;">
