@@ -9,8 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
     <style>
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: #f3f4f6; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 250px; background: linear-gradient(180deg, #991b1b, #dc2626, #ef4444); color: #fff; display: flex; flex-direction: column; padding: 20px 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background: #f3f4f6; display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; min-width: 250px; background: linear-gradient(180deg, #991b1b, #dc2626, #ef4444); color: #fff; display: flex; flex-direction: column; padding: 20px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 50; flex-shrink: 0; }
         .sidebar .logo-container { text-align: center; margin-bottom: 25px; padding: 0 20px; }
         .sidebar img { display: block; margin: 0 auto 10px; width: 80px; }
         .sidebar h2 { font-size: 1.2rem; font-weight: 600; }
@@ -18,19 +19,33 @@
         .sidebar a i { margin-right: 15px; width: 20px; text-align: center; }
         .sidebar a.active, .sidebar a:hover { background: rgba(255,255,255,0.2); border-radius: 5px; margin: 0 10px; padding: 13px 15px; }
         .sidebar .logout { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.3); }
-        .content { flex: 1; padding: 25px; overflow-y: auto; }
-        .topbar { background: #fff; padding: 15px 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .sidebar .logout a:hover { background: none; }
+        .content { flex: 1; padding: 25px; min-width: 0; overflow-x: hidden; }
+        .topbar { background: #fff; padding: 15px 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .welcome { font-size: 1.1rem; font-weight: 600; color: #991b1b; }
-        .date { font-weight: 500; color: #4b5563; }
+        .date { font-weight: 500; color: #4b5563; font-size: 0.9rem; }
+        .hamburger { display: none; background: none; border: none; color: #991b1b; font-size: 1.5rem; cursor: pointer; padding: 0; margin-right: 12px; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; }
+        .sidebar-overlay.open { display: block; }
+
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .sidebar { position: fixed; left: -260px; top: 0; height: 100vh; transition: left 0.3s ease; }
+            .sidebar.open { left: 0; }
+            .content { padding: 15px; }
+            .welcome { font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
         <div class="logo-container">
             <img src="{{ asset('images/logo-kanan.png') }}" alt="Logo Telkom Akses">
             <h2>Team Leader</h2>
         </div>
-	<a href="{{ route('teamleader.dashboard') }}" class="{{ request()->routeIs('teamleader.dashboard') ? 'active' : '' }}">
+        <a href="{{ route('teamleader.dashboard') }}" class="{{ request()->routeIs('teamleader.dashboard') ? 'active' : '' }}">
             <i class="fa-solid fa-tachometer-alt"></i> Dashboard
         </a>
         <a href="{{ route('teamleader.project.index') }}" class="{{ request()->routeIs('teamleader.project.*') ? 'active' : '' }}">
@@ -39,8 +54,12 @@
         <a href="{{ route('teamleader.assignment.index') }}" class="{{ request()->routeIs('teamleader.assignment.*') ? 'active' : '' }}">
             <i class="fa-solid fa-user-check"></i> Kelola Assignment
         </a>
+	<a href="{{ route('teamleader.mapping.index') }}" class="{{ request()->routeIs('teamleader.mapping.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-map-marker-alt"></i> Kelola Mapping
+        </a>
         <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}">
             <i class="fa-solid fa-user-circle"></i> Kelola Profile
+        </a>
         <div class="logout">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -50,14 +69,23 @@
             </form>
         </div>
     </div>
+
     <div class="content">
         <div class="topbar">
-            <div class="welcome">Selamat Datang, {{ Auth::user()->name }}</div>
+            <div style="display:flex; align-items:center;">
+                <button class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <div class="welcome">Selamat Datang, {{ Auth::user()->name }}</div>
+            </div>
             <div class="date" id="realtime-clock"></div>
         </div>
         {{ $slot }}
     </div>
+
     <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('open');
+        }
         function updateClock() {
             const now = new Date();
             const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -71,6 +99,7 @@
         updateClock();
         setInterval(updateClock, 1000);
     </script>
+
     @stack('scripts')
 </body>
 </html>

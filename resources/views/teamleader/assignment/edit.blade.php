@@ -23,7 +23,7 @@
                 <label>Karyawan</label>
                 <select name="user_id" required>
                     <option value="">-- Pilih Karyawan --</option>
-                    @foreach ($users as $user)
+                    @foreach ($karyawans as $user)
                         <option value="{{ $user->id }}" {{ old('user_id', $assignment->user_id) == $user->id ? 'selected' : '' }}>
                             {{ $user->name }} ({{ $user->username }})
                         </option>
