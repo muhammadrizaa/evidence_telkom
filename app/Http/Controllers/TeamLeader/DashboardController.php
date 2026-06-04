@@ -1,39 +1,60 @@
 <?php
-
 namespace App\Http\Controllers\TeamLeader;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
-// use App\Models\Assignment; ← HAPUS BARIS INI
+use App\Models\Assignment;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $totalProject = Project::where('team_leader_id', Auth::id())->count();
+        $userId = Auth::id();
 
-        $projectAktif = Project::where('team_leader_id', Auth::id())
-            ->where('status', 'aktif')->count();
+        // Stats project
+        $totalProject   = Project::where('team_leader_id', $userId)->count();
+        $projectAktif   = Project::where('team_leader_id', $userId)->where('status', 'aktif')->count();
+        $projectPending = Project::where('team_leader_id', $userId)->where('status', 'pending')->count();
+        $projectSelesai = Project::where('team_leader_id', $userId)->where('status', 'selesai')->count();
 
-        $projectSelesai = Project::where('team_leader_id', Auth::id())
-            ->where('status', 'selesai')->count();
+        // Stats assignment
+        $totalAssignment = Assignment::whereHas('project', function($q) use ($userId) {
+            $q->where('team_leader_id', $userId);
+        })->count();
 
-        $projectPending = Project::where('team_leader_id', Auth::id())
-            ->where('status', 'pending')->count();
+        $deadlineDekat = Assignment::whereHas('project', function($q) use ($userId) {
+            $q->where('team_leader_id', $userId);
+        })
+        ->where('status_tugas', 'aktif')
+        ->whereNotNull('deadline')
+        ->whereDate('deadline', '<=', Carbon::now()->addDays(7))
+        ->count();
 
-        $recentProjects = Project::with(['admin', 'waspang'])
-            ->where('team_leader_id', Auth::id())
+        // Recent projects
+        $recentProjects = Project::with(['admin', 'waspang', 'tematik'])
+            ->where('team_leader_id', $userId)
             ->latest()
             ->take(5)
             ->get();
 
+        // Assignment deadline dekat
+        $nearDeadlineAssignments = Assignment::with(['user', 'project', 'purchaseOrder'])
+            ->whereHas('project', function($q) use ($userId) {
+                $q->where('team_leader_id', $userId);
+            })
+            ->where('status_tugas', 'aktif')
+            ->whereNotNull('deadline')
+            ->whereDate('deadline', '<=', Carbon::now()->addDays(7))
+            ->orderBy('deadline', 'asc')
+            ->take(5)
+            ->get();
+
         return view('teamleader.dashboard', compact(
-            'totalProject',
-            'projectAktif',
-            'projectSelesai',
-            'projectPending',
-            'recentProjects'
+            'totalProject', 'projectAktif', 'projectPending', 'projectSelesai',
+            'totalAssignment', 'deadlineDekat',
+            'recentProjects', 'nearDeadlineAssignments'
         ));
     }
 }

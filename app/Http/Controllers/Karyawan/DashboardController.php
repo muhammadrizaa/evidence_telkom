@@ -14,10 +14,11 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
+        // Ambil semua assignment milik karyawan
+        $assignmentIds = Assignment::where('user_id', $userId)->pluck('id');
+
         // Statistik evidence
-        $stats = Evidence::where('assignment_id', function($query) use ($userId) {
-                        $query->select('id')->from('assignments')->where('user_id', $userId);
-                    })
+        $stats = Evidence::whereIn('assignment_id', $assignmentIds)
                     ->select('status_laporan', DB::raw('count(*) as total'))
                     ->groupBy('status_laporan')
                     ->pluck('total', 'status_laporan');
@@ -34,9 +35,7 @@ class DashboardController extends Controller
                                  ->get();
 
         // Evidence terbaru 7 hari
-        $recentEvidences = Evidence::whereHas('assignment', function($query) use ($userId) {
-                                $query->where('user_id', $userId);
-                            })
+        $recentEvidences = Evidence::whereIn('assignment_id', $assignmentIds)
                             ->where('created_at', '>=', Carbon::now()->subDays(7))
                             ->latest()
                             ->get();

@@ -35,7 +35,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('/kelolauser', KelolaUserController::class)->names('kelolauser');
     Route::resource('/evidence', AdminEvidenceController::class)->names('evidence');
-    Route::resource('/laporan', LaporanController::class)->names('laporan');
+    Route::patch('/evidence/{evidence}/approve', [AdminEvidenceController::class, 'approve'])->name('evidence.approve');
+    Route::patch('/evidence/{evidence}/reject', [AdminEvidenceController::class, 'reject'])->name('evidence.reject');
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::post('/laporan/generate', [LaporanController::class, 'generate'])->name('laporan.generate');
     Route::resource('/waspang', WaspangController::class)->names('waspang');
     Route::resource('/po', PurchaseOrderController::class)->names('po');
     Route::resource('/tematik', TematikController::class)->names('tematik');

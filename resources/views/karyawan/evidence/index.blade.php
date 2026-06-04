@@ -19,8 +19,6 @@
         .btn-lihat { background-color: #3b82f6; } .btn-lihat:hover { background-color: #2563eb; }
         .btn-gray { background-color: #6b7280; } .btn-gray:hover { background-color: #4b5563; }
         .pagination { margin-top: 16px; }
-
-        /* Modal */
         .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 50; overflow-y: auto; padding: 20px; }
         .modal-content { background-color: #fff; padding: 24px; border-radius: 8px; max-width: 95%; width: 95%; max-height: 90vh; display: flex; flex-direction: column; }
         .modal-header-clean { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 2px solid #3b82f6; }
@@ -89,9 +87,15 @@
                 <tbody>
                     @forelse ($evidences as $evidence)
                         @php
-                            $files = is_array($evidence->file_path)
-                                ? $evidence->file_path
-                                : (json_decode($evidence->file_path, true) ?? []);
+                            $raw = $evidence->file_path;
+                            if (is_string($raw)) {
+                                $files = json_decode($raw, true) ?? [];
+                                if (is_string($files)) {
+                                    $files = json_decode($files, true) ?? [];
+                                }
+                            } else {
+                                $files = $raw ?? [];
+                            }
                         @endphp
                         <tr>
                             <td>
@@ -126,8 +130,7 @@
                                         <i class="fa-solid fa-edit"></i> Edit
                                     </a>
                                     <form action="{{ route('karyawan.evidence.destroy', $evidence->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus evidence ini?');">
-                                        @csrf
-                                        @method('DELETE')
+                                        @csrf @method('DELETE')
                                         <button type="submit" class="btn btn-red">
                                             <i class="fa-solid fa-trash"></i> Hapus
                                         </button>
@@ -164,9 +167,10 @@
                     <template x-for="(file, index) in evidenceFiles" :key="index">
                         <div class="image-preview-item">
                             <img
-                                :src="'{{ asset('storage') }}/' + file.path"
+                                :src="'{{ asset('storage') }}/' + encodeURIComponent(file.path).replace(/%2F/g, '/')"
                                 :alt="'Foto ' + (index + 1)"
-                                @click="window.open('{{ asset('storage') }}/' + file.path, '_blank')">
+                                @click="window.open('{{ asset('storage') }}/' + file.path, '_blank')"
+                                onerror="this.src='{{ asset('images/no-image.png') }}'; this.style.objectFit='contain';">
                             <p class="image-caption" x-text="file.caption || ('Foto ' + (index + 1))"></p>
                         </div>
                     </template>

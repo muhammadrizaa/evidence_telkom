@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -9,27 +8,28 @@ class Project extends Model
     protected $table = 'project';
     protected $guarded = [];
 
-    // Team Leader yang membuat project
-    public function teamLeader()
+    public function assignments()
     {
-        return $this->belongsTo(User::class, 'team_leader_id');
+        return $this->hasMany(Assignment::class);
     }
 
-    // Admin yang mengawal on-desk
+    public function tematik()
+    {
+        return $this->belongsTo(Tematik::class);
+    }
+
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
     }
 
-    // Waspang yang mengawasi lapangan
     public function waspang()
     {
-        return $this->belongsTo(Waspang::class, 'waspang_id');
+        return $this->belongsTo(Waspang::class);
     }
 
-    // Karyawan yang mengerjakan (via assignments)
-    public function assignments()
+    public function teamLeader()
     {
-        return $this->hasMany(Assignment::class);
+        return $this->belongsTo(User::class, 'team_leader_id');
     }
 }

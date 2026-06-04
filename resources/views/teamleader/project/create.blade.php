@@ -4,24 +4,19 @@
         .card-header { font-size:1.25rem; font-weight:700; color:#1f2937; border-bottom:2px solid #e5e7eb; padding-bottom:16px; margin-bottom:24px; }
         .form-group { margin-bottom:20px; }
         .form-group label { display:block; font-weight:600; color:#374151; margin-bottom:6px; }
-        .form-group input,
-        .form-group textarea,
-        .form-group select { width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:0.875rem; box-sizing:border-box; background:#fff; }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus { border-color:#2563eb; outline:none; box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+        .form-group input, .form-group textarea, .form-group select { width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:0.875rem; box-sizing:border-box; background:#fff; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:#dc2626; outline:none; box-shadow:0 0 0 3px rgba(220,38,38,0.1); }
         .admin-info { background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:10px 14px; font-size:0.875rem; color:#0369a1; }
         .error-msg { color:#dc2626; font-size:0.8rem; margin-top:4px; }
         .btn { display:inline-flex; align-items:center; padding:10px 20px; border-radius:8px; font-weight:600; font-size:0.875rem; text-decoration:none; color:white; border:none; cursor:pointer; }
         .btn i { margin-right:6px; }
-        .btn-blue { background:#2563eb; }
-        .btn-blue:hover { background:#1d4ed8; }
-        .btn-gray { background:#6b7280; }
-        .btn-gray:hover { background:#4b5563; }
+        .btn-red { background:#dc2626; } .btn-red:hover { background:#b91c1c; }
+        .btn-gray { background:#6b7280; } .btn-gray:hover { background:#4b5563; }
     </style>
+
     <div class="card">
         <div class="card-header">
-            <i class="fa-solid fa-plus" style="color:#2563eb; margin-right:8px;"></i>Tambah Project Baru
+            <i class="fa-solid fa-plus" style="color:#dc2626; margin-right:8px;"></i>Tambah Project Baru
         </div>
         <form method="POST" action="{{ route('teamleader.project.store') }}">
             @csrf
@@ -36,6 +31,19 @@
                 <label>Lokasi Project</label>
                 <input type="text" name="lokasi" value="{{ old('lokasi') }}" placeholder="Contoh: STO Banjarmasin" required>
                 @error('lokasi') <div class="error-msg">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="form-group">
+                <label>Tematik / Jenis Pekerjaan</label>
+                <select name="tematik_id" required>
+                    <option value="">-- Pilih Tematik --</option>
+                    @foreach($tematiKs as $tematik)
+                        <option value="{{ $tematik->id }}" {{ old('tematik_id') == $tematik->id ? 'selected' : '' }}>
+                            {{ $tematik->nama_tematik }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('tematik_id') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
 
             <div class="form-group">
@@ -63,9 +71,9 @@
                 <label>Status</label>
                 <select name="status" required>
                     <option value="">-- Pilih Status --</option>
-                    <option value="pending"  {{ old('status') == 'pending'  ? 'selected' : '' }}>Pending</option>
-                    <option value="aktif"    {{ old('status') == 'aktif'    ? 'selected' : '' }}>Aktif</option>
-                    <option value="selesai"  {{ old('status') == 'selesai'  ? 'selected' : '' }}>Selesai</option>
+                    <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="aktif"   {{ old('status') == 'aktif'   ? 'selected' : '' }}>Aktif</option>
+                    <option value="selesai" {{ old('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
                 </select>
                 @error('status') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
@@ -77,7 +85,7 @@
             </div>
 
             <div style="display:flex; gap:12px;">
-                <button type="submit" class="btn btn-blue"><i class="fa-solid fa-save"></i> Simpan</button>
+                <button type="submit" class="btn btn-red"><i class="fa-solid fa-save"></i> Simpan</button>
                 <a href="{{ route('teamleader.project.index') }}" class="btn btn-gray"><i class="fa-solid fa-arrow-left"></i> Batal</a>
             </div>
         </form>

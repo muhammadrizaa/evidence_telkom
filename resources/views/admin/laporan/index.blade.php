@@ -182,8 +182,8 @@
                         <tr>
                             {{-- Checkbox ini terhubung ke form "generate-form" --}}
                             <td><input type="checkbox" name="evidence_ids[]" value="{{ $evidence->id }}" form="generate-form"></td>
-                            <td>{{ $evidence->user->name }}</td>
-                            <td>{{ $evidence->lokasi }}</td>
+                            <td>{{ $evidence->user->name ?? '-' }}</td>
+			    <td>{{ $evidence->assignment->project->lokasi ?? '-' }}</td>
                             <td>{{ $evidence->updated_at->format('d M Y') }}</td>
                         </tr>
                         @empty

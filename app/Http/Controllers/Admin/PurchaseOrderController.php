@@ -13,20 +13,19 @@ class PurchaseOrderController extends Controller
     /**
      * Menampilkan daftar semua Purchase Order.
      */
-    public function index()
-    {
-        // EAGER LOAD SEMUA RELASI YANG DIPERLUKAN di view, termasuk 'evidences'
-        $po_list = PurchaseOrder::with([
-            'evidences', 
-            'evidences.user', 
-            'evidences.tematik', 
-            'evidences.pangwas'
-        ])
-        ->oldest('created_at')
-        ->paginate(10);
-
-        return view('admin.po.index', compact('po_list'));
-    }
+   public function index()
+{
+    $po_list = PurchaseOrder::with([
+        'evidences',
+        'evidences.user',
+        'evidences.tematik',
+        'evidences.waspang',
+        'evidences.assignment.project',
+    ])
+    ->oldest('created_at')
+    ->paginate(10);
+    return view('admin.po.index', compact('po_list'));
+}
 
     /**
      * Menampilkan formulir untuk membuat Purchase Order baru.
