@@ -43,9 +43,9 @@
                 @error('project_id') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
             <div class="form-group">
-                <label>Mapping Area</label>
+                <label>Area</label>
                 <select name="mapping_id" required>
-                    <option value="">-- Pilih Mapping --</option>
+                    <option value="">-- Pilih Area --</option>
                     @foreach ($mappings as $mapping)
                         <option value="{{ $mapping->id }}" {{ old('mapping_id') == $mapping->id ? 'selected' : '' }}>
                             {{ $mapping->nama_area }} ({{ $mapping->kode_mapping }})

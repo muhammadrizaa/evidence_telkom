@@ -25,7 +25,7 @@
                 @error('nama_area') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
             <div class="form-group">
-                <label>Kode Mapping</label>
+                <label>Kode Area</label>
                 <input type="text" name="kode_mapping" value="{{ old('kode_mapping', $mapping->kode_mapping) }}" required>
                 @error('kode_mapping') <div class="error-msg">{{ $message }}</div> @enderror
             </div>

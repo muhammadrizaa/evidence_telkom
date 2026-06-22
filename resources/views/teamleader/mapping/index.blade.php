@@ -20,9 +20,9 @@
 
     <div class="card">
         <div class="card-header">
-            <h2><i class="fa-solid fa-map-marker-alt" style="color:#dc2626; margin-right:10px;"></i>Kelola Mapping Area</h2>
+            <h2><i class="fa-solid fa-map-marker-alt" style="color:#dc2626; margin-right:10px;"></i>Kelola Nama Area</h2>
             <a href="{{ route('teamleader.mapping.create') }}" class="btn btn-red">
-                <i class="fa-solid fa-plus"></i> Tambah Mapping
+                <i class="fa-solid fa-plus"></i> Tambah Area
             </a>
         </div>
 
@@ -36,7 +36,7 @@
                     <tr>
                         <th>No</th>
                         <th>Nama Area</th>
-                        <th>Kode Mapping</th>
+                        <th>Kode Area</th>
                         <th>Dibuat</th>
                         <th style="text-align:center;">Aksi</th>
                     </tr>

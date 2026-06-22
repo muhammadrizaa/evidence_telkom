@@ -87,20 +87,33 @@
 
     <div class="title">EVIDENCE PEKERJAAN</div>
 
-    {{-- Info project - tampil di semua halaman untuk testing --}}
+    {{-- Info project - dinamis dari data evidence --}}
     <table class="info">
         <tr>
             <td>PROYEK</td>
             <td>:</td>
-            <td>
-                PENGADAAN PEKERJAAN OUTSIDE PLANT FIBER TO THE HOME (OSP - FTTH)<br>
-                TAHUN 2025 TELKOM REGIONAL IV KALIMANTAN
-            </td>
+            <td>{{ $evidenceData['proyek'] ?? '-' }}</td>
         </tr>
-        <tr><td>KONTRAK</td><td>:</td><td></td></tr>
-        <tr><td>AREA</td><td>:</td><td>BANJARMASIN</td></tr>
-        <tr><td>LOKASI</td><td>:</td><td>{{ $evidenceData['lokasi'] ?? '-' }}</td></tr>
-        <tr><td>PELAKSANA</td><td>:</td><td>PT. TELKOM AKSES</td></tr>
+        <tr>
+            <td>KONTRAK</td>
+            <td>:</td>
+            <td>{{ $evidenceData['kontrak'] ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>AREA</td>
+            <td>:</td>
+            <td>{{ $evidenceData['area'] ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>LOKASI</td>
+            <td>:</td>
+            <td>{{ $evidenceData['lokasi'] ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td>PELAKSANA</td>
+            <td>:</td>
+            <td>PT. TELKOM AKSES</td>
+        </tr>
     </table>
 
     {{-- Tabel gambar (maksimal 6 foto, 3 kolom x 2 baris) --}}

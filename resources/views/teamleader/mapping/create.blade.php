@@ -16,7 +16,7 @@
     </style>
 
     <div class="card">
-        <div class="card-header"><i class="fa-solid fa-plus" style="color:#dc2626; margin-right:8px;"></i>Tambah Mapping Baru</div>
+        <div class="card-header"><i class="fa-solid fa-plus" style="color:#dc2626; margin-right:8px;"></i>Tambah Area Baru</div>
         <form method="POST" action="{{ route('teamleader.mapping.store') }}">
             @csrf
             <div class="form-group">
@@ -25,7 +25,7 @@
                 @error('nama_area') <div class="error-msg">{{ $message }}</div> @enderror
             </div>
             <div class="form-group">
-                <label>Kode Mapping</label>
+                <label>Kode Area</label>
                 <input type="text" name="kode_mapping" value="{{ old('kode_mapping') }}" placeholder="Contoh: BJM-001" required>
                 @error('kode_mapping') <div class="error-msg">{{ $message }}</div> @enderror
             </div>

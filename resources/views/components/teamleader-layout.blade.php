@@ -42,7 +42,7 @@
 
     <div class="sidebar" id="sidebar">
         <div class="logo-container">
-            <img src="{{ asset('images/logo-kanan.png') }}" alt="Logo Telkom Akses">
+            <img src="{{ asset('images/logo-kiri.png') }}" alt="Logo Telkom Akses">
             <h2>Team Leader</h2>
         </div>
         <a href="{{ route('teamleader.dashboard') }}" class="{{ request()->routeIs('teamleader.dashboard') ? 'active' : '' }}">
@@ -55,7 +55,7 @@
             <i class="fa-solid fa-user-check"></i> Kelola Assignment
         </a>
 	<a href="{{ route('teamleader.mapping.index') }}" class="{{ request()->routeIs('teamleader.mapping.*') ? 'active' : '' }}">
-            <i class="fa-solid fa-map-marker-alt"></i> Kelola Mapping
+            <i class="fa-solid fa-map-marker-alt"></i> Kelola Area
         </a>
         <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.edit') ? 'active' : '' }}">
             <i class="fa-solid fa-user-circle"></i> Kelola Profile

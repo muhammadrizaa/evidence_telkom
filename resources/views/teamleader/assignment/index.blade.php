@@ -40,7 +40,7 @@
                         <th>No</th>
                         <th>Karyawan</th>
                         <th>Project/Lokasi</th>
-                        <th>Mapping Area</th>
+                        <th>Area</th>
                         <th>Tematik</th>
                         <th>No. PO</th>
                         <th>Tgl Penugasan</th>

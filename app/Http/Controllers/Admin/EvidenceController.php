@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Evidence;
 use App\Models\Assignment;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -28,10 +29,21 @@ class EvidenceController extends Controller
             'catatan_admin'  => null,
         ]);
 
-        // Auto update status assignment jadi selesai
         if ($evidence->assignment_id) {
             Assignment::where('id', $evidence->assignment_id)
                       ->update(['status_tugas' => 'selesai']);
+
+            $assignment = Assignment::find($evidence->assignment_id);
+            if ($assignment && $assignment->project_id) {
+                $totalAssignment   = Assignment::where('project_id', $assignment->project_id)->count();
+                $selesaiAssignment = Assignment::where('project_id', $assignment->project_id)
+                                                ->where('status_tugas', 'selesai')->count();
+
+                if ($totalAssignment > 0 && $totalAssignment === $selesaiAssignment) {
+                    Project::where('id', $assignment->project_id)
+                           ->update(['status' => 'selesai']);
+                }
+            }
         }
 
         return back()->with('success', 'Evidence berhasil disetujui dan assignment ditandai selesai.');
@@ -58,14 +70,12 @@ class EvidenceController extends Controller
         } else {
             $files = $raw ?? [];
         }
-
         if (is_array($files)) {
             foreach ($files as $fileData) {
                 $path = is_array($fileData) ? ($fileData['path'] ?? null) : $fileData;
                 if ($path) Storage::disk('public')->delete($path);
             }
         }
-
         $evidence->delete();
         return back()->with('success', 'Evidence berhasil dihapus permanen.');
     }

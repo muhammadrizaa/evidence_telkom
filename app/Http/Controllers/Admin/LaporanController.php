@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpWord\SimpleType\Jc;
+use Intervention\Image\ImageManagerStatic as Image;
 
 class LaporanController extends Controller
 {
@@ -19,7 +19,7 @@ class LaporanController extends Controller
     {
         $karyawanList = User::where('role', 'karyawan')->orderBy('name')->get();
 
-        $query = Evidence::with(['user', 'assignment.project'])
+        $query = Evidence::with(['user', 'assignment.project', 'purchaseOrder'])
                          ->where('status_laporan', 'approved');
 
         $selectedMonthYear = $request->input('month_year');
@@ -72,7 +72,7 @@ class LaporanController extends Controller
         ]);
 
         $evidenceIds = $request->input('evidence_ids');
-        $evidences   = Evidence::with(['user', 'assignment.project', 'waspang', 'tematik'])
+        $evidences   = Evidence::with(['user', 'assignment.project', 'assignment.mapping', 'waspang', 'tematik', 'purchaseOrder'])
                                ->whereIn('id', $evidenceIds)
                                ->get();
         $format = $request->input('format');
@@ -85,6 +85,19 @@ class LaporanController extends Controller
         }
     }
 
+    /**
+     * Ambil data header laporan (proyek, kontrak, area, lokasi) dari satu evidence.
+     */
+    private function getReportInfo($evidence)
+    {
+        return [
+            'proyek'  => $evidence->assignment->project->nama_project ?? '-',
+            'kontrak' => $evidence->purchaseOrder->no_po ?? '-',
+            'area'    => $evidence->assignment->mapping->kode_mapping ?? '-',
+            'lokasi'  => $evidence->assignment->project->lokasi ?? '-',
+        ];
+    }
+
     private function generateWord($evidences)
     {
         $phpWord = new PhpWord();
@@ -93,7 +106,7 @@ class LaporanController extends Controller
 
         foreach ($evidences as $evidence) {
             $filesData   = $this->normalizeFilesData($evidence->file_path);
-            $lokasi      = $evidence->assignment->project->lokasi ?? '-';
+            $info        = $this->getReportInfo($evidence);
             $imageChunks = array_chunk($filesData, 6);
 
             foreach ($imageChunks as $chunkIndex => $pageImages) {
@@ -105,7 +118,7 @@ class LaporanController extends Controller
                 ]);
 
                 // Header Logo
-                $header     = $section->addHeader();
+                $header      = $section->addHeader();
                 $headerTable = $header->addTable(['alignment' => Jc::CENTER]);
                 $headerTable->addRow();
 
@@ -127,16 +140,16 @@ class LaporanController extends Controller
                     ['alignment' => Jc::CENTER, 'spaceAfter' => 240]
                 );
 
-                // Info Table
+                // Info Table — PROYEK, KONTRAK, AREA, LOKASI, PELAKSANA
                 $infoTableStyle = ['borderSize' => 0, 'borderColor' => 'FFFFFF', 'cellMargin' => 0];
                 $cellStyle      = ['borderSize' => 0, 'borderColor' => 'FFFFFF', 'valign' => 'top'];
                 $infoTable      = $section->addTable($infoTableStyle);
 
                 $rows = [
-                    ['PROYEK',    "PENGADAAN PEKERJAAN OUTSIDE PLANT FIBER TO THE HOME (OSP - FTTH)\nTAHUN 2025 TELKOM REGIONAL IV KALIMANTAN"],
-                    ['KONTRAK',   ''],
-                    ['AREA',      'BANJARMASIN'],
-                    ['LOKASI',    $lokasi],
+                    ['PROYEK',    $info['proyek']],
+                    ['KONTRAK',   $info['kontrak']],
+                    ['AREA',      $info['area']],
+                    ['LOKASI',    $info['lokasi']],
                     ['PELAKSANA', 'PT. TELKOM AKSES'],
                 ];
 
@@ -152,18 +165,17 @@ class LaporanController extends Controller
 
                 $section->addTextBreak(1);
 
-                // Tabel Gambar - 3 kolom x 2 baris = 6 foto per halaman
+                // Tabel Gambar
                 $imageRows = array_chunk($pageImages, 3);
 
                 foreach ($imageRows as $row) {
                     $imageTable = $section->addTable([
-                        'borderSize' => 6,
+                        'borderSize'  => 6,
                         'borderColor' => '000000',
                         'cellMargin'  => 80,
                         'alignment'   => Jc::CENTER,
                     ]);
 
-                    // Row gambar
                     $imageTable->addRow(2000);
                     foreach ($row as $fileData) {
                         $cell     = $imageTable->addCell(3000, ['valign' => 'center']);
@@ -178,7 +190,6 @@ class LaporanController extends Controller
                         $imageTable->addCell(3000);
                     }
 
-                    // Row caption
                     $imageTable->addRow();
                     foreach ($row as $fileData) {
                         $imageTable->addCell(3000, ['valign' => 'center'])->addText(
@@ -204,7 +215,9 @@ class LaporanController extends Controller
     private function generatePdf($evidences)
     {
         ini_set('memory_limit', '512M');
-        set_time_limit(0);
+        set_time_limit(300);
+
+        Image::configure(['driver' => 'gd']);
 
         $logoAksesBase64 = file_exists(public_path('images/logo-kiri.png'))
             ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('images/logo-kiri.png')))
@@ -217,8 +230,8 @@ class LaporanController extends Controller
         $processedEvidences = [];
 
         foreach ($evidences as $evidence) {
-            $lokasi = $evidence->assignment->project->lokasi ?? '-';
-            $raw    = $evidence->file_path;
+            $info = $this->getReportInfo($evidence);
+            $raw  = $evidence->file_path;
 
             if (is_string($raw)) {
                 $files = json_decode($raw, true) ?? [];
@@ -231,17 +244,29 @@ class LaporanController extends Controller
 
             $normalizedFiles = [];
             foreach ($files as $file) {
-                $path    = is_array($file) ? ($file['path'] ?? '') : $file;
+                $path     = is_array($file) ? ($file['path'] ?? '') : $file;
                 $safePath = ltrim($path, '/');
                 $fullPath = storage_path('app/public/' . $safePath);
 
                 if (file_exists($fullPath)) {
-                    $ext     = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-                    $caption = pathinfo($path, PATHINFO_FILENAME);
-                    $normalizedFiles[] = [
-                        'base64'  => 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($fullPath)),
-                        'caption' => $caption,
-                    ];
+                    try {
+                        $image = Image::make($fullPath);
+                        $image->resize(600, null, function ($constraint) {
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        });
+
+                        $encoded = (string) $image->encode('jpg', 70);
+                        $base64  = 'data:image/jpeg;base64,' . base64_encode($encoded);
+                        $caption = pathinfo($path, PATHINFO_FILENAME);
+
+                        $normalizedFiles[] = [
+                            'base64'  => $base64,
+                            'caption' => $caption,
+                        ];
+                    } catch (\Exception $e) {
+                        continue;
+                    }
                 }
             }
 
@@ -249,14 +274,20 @@ class LaporanController extends Controller
                 $pages = array_chunk($normalizedFiles, 6);
                 foreach ($pages as $pageIndex => $pageFiles) {
                     $processedEvidences[] = [
-                        'lokasi'        => $lokasi,
+                        'proyek'        => $info['proyek'],
+                        'kontrak'       => $info['kontrak'],
+                        'area'          => $info['area'],
+                        'lokasi'        => $info['lokasi'],
                         'file_path'     => $pageFiles,
                         'is_first_page' => ($pageIndex === 0),
                     ];
                 }
             } else {
                 $processedEvidences[] = [
-                    'lokasi'        => $lokasi,
+                    'proyek'        => $info['proyek'],
+                    'kontrak'       => $info['kontrak'],
+                    'area'          => $info['area'],
+                    'lokasi'        => $info['lokasi'],
                     'file_path'     => [],
                     'is_first_page' => true,
                 ];
@@ -273,7 +304,9 @@ class LaporanController extends Controller
             ->setPaper('A4', 'portrait')
             ->setOption([
                 'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled'      => true,
+                'isRemoteEnabled'      => false,
+                'defaultFont'          => 'Arial',
+                'dpi'                  => 96,
             ]);
 
         $fileName = 'Laporan-Evidence-' . now()->format('d-m-Y') . '.pdf';
